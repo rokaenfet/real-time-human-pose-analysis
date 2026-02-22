@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "mediapipe>=0.10.32",
     "opencv-python>=4.13.0.92",
     "torch>=2.6.0",
     "torchaudio>=2.6.0",
