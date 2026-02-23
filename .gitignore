@@ -2,6 +2,7 @@
 *.task
 *.zip
 Head_Pose_Database_UPNA
+Body_Pose_Database_CMU
 
 
 # Byte-compiled / optimized / DLL files

@@ -1,95 +1,97 @@
-from helper.load_UPNA import UPNALoader
-from helper.mediapipe_helper import MediaPipeHeadPoseEstimator
+import cv2
+import numpy as np
+import os
+import glob
+import math
+from helper.mediapipe_helper import MediaPipeBodyPoseEstimator
 from helper.screen_util import ScreenUtility
 
-import tkinter as tk
-import sys
-import cv2
-import time
+# --- Configuration ---
+VIDEO_DIR = "Body_Pose_Database_CMU/hdVideos/"
+video_paths = sorted(glob.glob(os.path.join(VIDEO_DIR, "*.mp4")))[:4]
 
-# --- Initialization ---
-try:
-    screen_utility = ScreenUtility()
-    upna_loader = UPNALoader()
-    mediapipe_face_estimator = MediaPipeHeadPoseEstimator(angle_smoothener_alpha=.1)
-except Exception as e:
-    print(f"Initialization Error: {e}")
-    sys.exit()
+SAVE_VIDEO = False
+OUTPUT_PATH = "cmu_body_analysis_grid.mp4"
 
-# pick video
-USER_ID = "01"
-VIDEO_ID = "05"
-video = upna_loader.load_video_cv2(user_id=USER_ID, video_id=VIDEO_ID)
+# --- Setup ---
+caps = [cv2.VideoCapture(p) for p in video_paths]
+num_vids = len(caps)
+cols = math.ceil(math.sqrt(num_vids))
+rows = math.ceil(num_vids / cols)
 
+screen_utility = ScreenUtility()
 
-fps = 0.0
-frame_count = 0
-last_time = time.time()
+screen_w, screen_h = screen_utility.get_available_screen_size()
+tile_w = int((screen_w) // cols)
+tile_h = int((screen_h) // rows)
 
+estimator = MediaPipeBodyPoseEstimator()
+
+video_writer = None
 is_playing = True
-paused_frame = None
+paused_tiles = [None] * num_vids
 
-while True:
-    if is_playing:
-        ret, frame = video.read()
-        if not ret: break
-
-        # 1. Detect
-        result = mediapipe_face_estimator.detect_landmarks(frame)
-        vis_frame = frame.copy()
-
-        if result and result.face_landmarks:
-            # 2. Estimate
-            rot_deg, axes = mediapipe_face_estimator.estimate_head_pose(
-                result.face_landmarks[0], frame.shape
-            )
-
-            # 3. Draw All Visualization (Mesh + Pose)
-            vis_frame = mediapipe_face_estimator.draw_landmarks(
-                vis_frame, result, draw_index_of_interest=False, draw_tesselation=False, draw_contours=False, draw_iris=False
-            )
-            
-            # This handles smoothing, text, and 3D lines internally
-            vis_frame, smooth_angles = mediapipe_face_estimator.draw_pose_info(
-                vis_frame, rot_deg, axes
-            )
+try:
+    while True:
+        display_tiles = []
         
-        paused_frame = vis_frame.copy()
+        for i in range(num_vids):
+            if is_playing:
+                ret, frame = caps[i].read()
+                if not ret:
+                    caps[i].set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    ret, frame = caps[i].read()
 
-        # --- FPS Calculation ---
-        frame_count += 1
-        current_time = time.time()
-        elapsed = current_time - last_time
-        # Update FPS every 1 second
-        if elapsed >= 1.0:
-            fps = frame_count / elapsed
-            frame_count = 0
-            last_time = current_time
+                # 1. Detection
+                result = estimator.detect_landmarks(frame)
+                
+                # 2. Pose Estimation & Drawing
+                vis_frame = frame.copy()
+                if result and result.pose_landmarks:
+                    landmarks = result.pose_landmarks[0]
+                    
+                    # Calculate Euler angles and axes
+                    angles, axes_data = estimator.estimate_body_pose(landmarks, frame.shape)
+                    
+                    # Draw official skeleton and custom pose info
+                    vis_frame = estimator.draw_landmarks(vis_frame, result, draw_skeleton=False)
+                    vis_frame = estimator.draw_pose_info(vis_frame, angles, axes_data)
 
-        # rendered info
-        cv2.putText(vis_frame, f"User: {USER_ID} | FPS: {fps:.1f}", (10, 30), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-    else:
-        if paused_frame is not None:
-            frame = paused_frame.copy()
-        else:
-            time.sleep(0.01)
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'): break
-            elif key == ord(' '): is_playing = not is_playing
-            continue
-    
-    cv2.imshow("", vis_frame)
+                # 3. Resize for Grid
+                tile = screen_utility.resize_with_padding(vis_frame, [tile_w, tile_h])
+                paused_tiles[i] = tile
+            else:
+                tile = paused_tiles[i]
+            
+            display_tiles.append(tile)
 
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):
-        break
-    elif key == ord(' '):
-        is_playing = not is_playing
-        print(f"State: {'Paused' if not is_playing else 'Playing'}")
+        # Fill empty grid slots
+        while len(display_tiles) < (rows * cols):
+            display_tiles.append(np.zeros((tile_h, tile_w, 3), dtype=np.uint8))
 
-# --- Cleanup ---
-video.release()
-mediapipe_face_estimator.close()
-cv2.destroyAllWindows()
-print("Test finished.")
+        # Assemble Grid
+        grid_rows = [np.hstack(display_tiles[r*cols : (r+1)*cols]) for r in range(rows)]
+        final_grid = np.vstack(grid_rows)
+
+        # Video Export Logic
+        if SAVE_VIDEO:
+            if video_writer is None:
+                gh, gw, _ = final_grid.shape
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                video_writer = cv2.VideoWriter(OUTPUT_PATH, fourcc, 20.0, (gw, gh))
+            if is_playing:
+                video_writer.write(final_grid)
+
+        # UI
+        cv2.imshow("CMU Panoptic - Euler Body Analysis", final_grid)
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'): break
+        elif key == ord(' '): is_playing = not is_playing
+
+finally:
+    # Cleanup
+    if video_writer: video_writer.release()
+    for c in caps: c.release()
+    estimator.close()
+    cv2.destroyAllWindows()
+    print(f"Export complete: {OUTPUT_PATH}")

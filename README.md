@@ -54,11 +54,20 @@ Show that one can automatically look-out for specific movements of a human
     - [ ] `Vectory Heuristics`
     - [ ] `Centroid of Upper Body (L Shoulder, R Shoulder, Nose)`
     - [ ] `3D Landmarks > Euler`
-  - Body Orientation Estimation:
+  - Body Pose Estimation:
+    - [ ] `Normal Vector`
+      - [ ] No Coordinate position
+    - [ ] `Euler`
+      - [ ] Flat Body Coordinate Acquirement is too ambiguous, no rigid static body.
+    - [ ] `Hybrid`
+      - [ ] 
 
 
-### Mediapipe w UPNA
+### Mediapipe + Euler + EMA + UPNA
 ![Head Pose Estimation Demo](presentation_mat/UPNA_demo.gif)
+
+### Mediapipe + Norm Vecotr + CMU
+![Body Pose Normal Vector Estimation Demo](presentation_mat/CMU_norm_vector.gif)
 ---
 
 ## Running Code
@@ -74,6 +83,7 @@ Show that one can automatically look-out for specific movements of a human
 Pose Landmark: `curl -o pose_landmarker.task -q https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task`
 Face Landmark: `curl -o face_landmarker_v2_with_blendshapes.task -q https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`
 
+
 ### Code
 - `./helper/`
   - Helper libs
@@ -81,6 +91,7 @@ Face Landmark: `curl -o face_landmarker_v2_with_blendshapes.task -q https://stor
 - `multi_headpose.py`
   - Runs any of the `User_??`'s Face video data with mediapose. Extensive testing of mediapose model.
 
+**FaceLandMarkerResult**
 ```
 FaceLandmarkerResult:
   face_landmarks:
@@ -110,6 +121,40 @@ FaceLandmarkerResult:
     [1.66496094e-02,  9.93480563e-01, -1.12779640e-01, 2.27719707e+01]
 ```
 
+**PoseLandmarkerResult**
+```PoseLandmarkerResult
+PoseLandmarkerResult:
+  Landmarks:
+    Landmark #0:
+      x            : 0.638852
+      y            : 0.671197
+      z            : 0.129959
+      visibility   : 0.9999997615814209
+      presence     : 0.9999984502792358
+    Landmark #1:
+      x            : 0.634599
+      y            : 0.536441
+      z            : -0.06984
+      visibility   : 0.999909
+      presence     : 0.999958
+    ... (33 landmarks per pose)
+  WorldLandmarks:
+    Landmark #0:
+      x            : 0.067485
+      y            : 0.031084
+      z            : 0.055223
+      visibility   : 0.9999997615814209
+      presence     : 0.9999984502792358
+    Landmark #1:
+      x            : 0.063209
+      y            : -0.00382
+      z            : 0.020920
+      visibility   : 0.999976
+      presence     : 0.999998
+    ... (33 world landmarks per pose)
+  SegmentationMasks:
+    ... (pictured below)
+```
 ---
 
 ## Note.
