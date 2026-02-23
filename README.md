@@ -58,7 +58,7 @@ Show that one can automatically look-out for specific movements of a human
 
 
 ### Mediapipe w UPNA
-<video src="presentation_mat/upna_grid_analysis.mp4" width="800" controls autoplay loop muted></video>
+![Head Pose Estimation Demo](presentation_mat/UPNA_demo.gif)
 ---
 
 ## Running Code
