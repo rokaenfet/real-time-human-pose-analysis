@@ -42,32 +42,34 @@ Show that one can automatically look-out for specific movements of a human
 ---
 
 ## Project Structure
-- [ ] Version Manager: `Github` (defacto)
-- [ ] Library Manager: `uv` (fast)
+- [x] Version Manager: `Github` (defacto)
+- [x] Library Manager: `uv` (fast)
 - Main Functionality
   - Landmark Detection:
-    - [ ] `MediaPose`
+    - [x] `MediaPose`
     - [ ] `YOLO`
     - [ ] `Google MoveNet`
     - [ ] `RTMPose`
   - Head Pose Estimation: 
     - [ ] `Vectory Heuristics`
     - [ ] `Centroid of Upper Body (L Shoulder, R Shoulder, Nose)`
-    - [ ] `3D Landmarks > Euler`
+    - [x] `3D Landmarks > Euler`
   - Body Pose Estimation:
     - [ ] `Normal Vector`
-      - [ ] No Coordinate position
+      - No Coordinate position
     - [ ] `Euler`
-      - [ ] Flat Body Coordinate Acquirement is too ambiguous, no rigid static body.
-    - [ ] `Hybrid`
-      - [ ] 
+      - Flat Body Coordinate Acquirement is too ambiguous, no rigid static body.
+    - [x] `Hybrid`
 
 
-### Mediapipe + Euler + EMA + UPNA
+### Mediapipe + Euler + EMA(0.2) + UPNA
 ![Head Pose Estimation Demo](presentation_mat/UPNA_demo.gif)
 
-### Mediapipe + Norm Vecotr + CMU
+### Mediapipe + Norm Vector + EMA(0.2) + CMU
 ![Body Pose Normal Vector Estimation Demo](presentation_mat/CMU_norm_vector.gif)
+
+### Mediapipe + Norm Vector + Euler + EMA(0.2) + CMU
+![Body Pose Hybrid Estimation Demo](presentation_mat/CMU_hybrid.gif)
 ---
 
 ## Running Code
