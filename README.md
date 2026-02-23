@@ -72,6 +72,9 @@ Pose Landmark: `curl -o pose_landmarker.task -q https://storage.googleapis.com/m
 Face Landmark: `curl -o face_landmarker_v2_with_blendshapes.task -q https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`
 
 ### Code
+- `./helper/`
+  - Helper libs
+
 - `multi_headpose.py`
   - Runs any of the `User_??`'s Face video data with mediapose. Extensive testing of mediapose model.
 
