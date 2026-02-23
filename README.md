@@ -103,3 +103,6 @@ FaceLandmarkerResult:
     [9.99158978e-01, -1.23036895e-02, 3.91213447e-02, -3.70770246e-01]
     [1.66496094e-02,  9.93480563e-01, -1.12779640e-01, 2.27719707e+01]
 ```
+
+`mediapipe` > `euler`
+`mediapipe` provides 3D facemesh landmarks. Coordinates are canonical. Z-axis points away from the camera.
