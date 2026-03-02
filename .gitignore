@@ -3,6 +3,9 @@
 *.zip
 Head_Pose_Database_UPNA
 Body_Pose_Database_CMU
+nturgbd_skeletons_s001_to_s017/*
+NPU_raw_npy/*
+**.skeleton
 
 
 # Byte-compiled / optimized / DLL files
