@@ -1,0 +1,24 @@
+[project]
+name = "real-time-human-pose-analysis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "ipympl>=0.10.0",
+    "jupyter>=1.1.1",
+    "kernel>=0.41.0",
+    "mediapipe>=0.10.32",
+    "multiprocess>=0.70.19",
+    "opencv-python>=4.13.0.92",
+    "pandas>=2.3.3",
+    "scipy>=1.15.3",
+    "seaborn>=0.13.2",
+    "torch>=2.6.0",
+    "torchaudio>=2.6.0",
+    "torchvision>=0.21.0",
+    "tqdm>=4.66.5",
+]
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cu124"
