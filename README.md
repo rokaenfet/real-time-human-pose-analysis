@@ -3,6 +3,7 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![CUDA 12.4](https://img.shields.io/badge/CUDA-12.4-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Optuna](https://img.shields.io/badge/Optuna-20ad4e?style=flat&logo=optuna&logoColor=white)](https://optuna.org/)
 
 A high-performance pipeline for real-time human movement analysis, ranging from head-pose estimation to complex body mechanics and temporal action classification.
 
@@ -29,8 +30,12 @@ The goal of this project is to move beyond static landmark detection and achieve
 ### Phase 2: Temporal Intelligence (In Progress)
 * [x] **Dataset Engineering:** Pre-processing NTU RGB+D (60/120) skeleton sequences.
 * [x] **Skeleton Visualization:** Custom 3D animation engine with axis-correction (Kinect-to-Matplotlib).
-* [ ] **Architecture Implementation:** Many-to-One.
-* [ ] **Real-time Integration:** Porting the trained `.pth` model to a live camera sliding-window buffer.
+
+## Phase 3: Action Recognition Model Training and Tuning (Optuna)
+* [x] **LSTM**: Joints ➔ Flat Vector ➔ Actions
+* [ ] **ST-GCN**: Joints ➔ Graphs ➔ Actions
+* [ ] **TSM**: Joints ➔ Flat Vector ➔ Sliding Window on Temporal Vector ➔ Actions
+* [ ] **Action Mambda (SOTA)**: Joints ➔ Skeleton ➔ Flat Vector ➔ Fixed Size State Space ➔ Actions
 
 ---
 
