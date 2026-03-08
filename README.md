@@ -26,10 +26,11 @@ The goal of this project is to move beyond static landmark detection and achieve
 * [x] **Body Pose Estimation:** Hybrid Normal-PnP method to bypass the "Planar Trap."
 * [x] **Temporal Smoothing:** Exponential Moving Average (EMA) to eliminate landmark jitter.
 
-### Phase 2: Temporal Intelligence (Current)
-* [ ] **Action Recognition:** Classifying movements over time (e.g., Squatting, Waving).
-* [ ] **Sliding Window Inference:** Processing landmark buffers (30–60 frames).
-* [ ] **Multi-Person Tracking:** Maintaining ID consistency across frames.
+### Phase 2: Temporal Intelligence (In Progress)
+* [x] **Dataset Engineering:** Pre-processing NTU RGB+D (60/120) skeleton sequences.
+* [x] **Skeleton Visualization:** Custom 3D animation engine with axis-correction (Kinect-to-Matplotlib).
+* [ ] **Architecture Implementation:** Many-to-One.
+* [ ] **Real-time Integration:** Porting the trained `.pth` model to a live camera sliding-window buffer.
 
 ---
 
@@ -51,6 +52,7 @@ We utilize **Skeleton-Based HAR**, optimized for the GTX 1660 Ti's CUDA cores.
 3.  **3D-CNN:** Too expensive for this spec (pixel-heavy).
 
 ---
+## Phase 2
 
 1. Recognizing single instance
    - Sliding window on detected instance
@@ -69,7 +71,42 @@ We utilize **Skeleton-Based HAR**, optimized for the GTX 1660 Ti's CUDA cores.
    - `Semantic Prediction`: Inferences most statistically likely positions
    - `Visibility Weighting`: Remove landmarks with low visibility
 
+**LSTM Training and inference**
 
+| Epoch | Learning Rate | Scheduler Patience | Scheduler Factor | Batch Size | Sample per Action Class | Overfit Epoch |
+| --- | --- | --- | --- | --- | --- | --- |
+| 100 | 0.001 | 10 | 0.8 | 32 | 500 | 25 |
+| 100 | 0.001 | 5 | 0.8 | 64 | 500 | 50 |
+
+
+| Model | Hidden Size | Layers | Accuracy | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| LSTM | 128 | 2 | 72.64% | Overfitted |
+| LSTM | 128 | 2 | 70.36% | Overfitted |
+
+### Auto-Finetune with Optuna
+**Optuna Search Space**
+|  | lr | weight decay | hidden layer | layer count | dropout lstm | dropout fc | schedule patience | schedule factor |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| Min | 1e-4 | 1e-5 | 64 | 1 | 0.2 | 0.2 | 3 | 0.3 |
+| Max | 1e-2 | 1e-3 | 256 | 3 | 0.6 | 0.6 | 8 | 0.95 |
+
+- 20 trials, at 64 batches, 500 samples per action class (sorted by skeleton variance)...
+```
+🥇 ABSOLUTE BEST TRIAL: #10
+Time Taken: ~16hrs
+Accuracy: 78.53%
+Parameters:
+  - lr: 0.0021927227334441993
+  - weight_decay: 3.449439846578009e-05
+  - hidden_size: 128
+  - num_layers: 2
+  - dropout_lstm: 0.20073803360880155
+  - dropout_fc: 0.38435423071164077
+  - lr_schedule_patience: 6.213402139127039
+  - lr_schedule_factor: 0.6639920047814557
+```
+![](presentation_mat/LSTM_optuna_best.png)
 ---
 
 ## 🎥 Demos
@@ -83,6 +120,17 @@ We utilize **Skeleton-Based HAR**, optimized for the GTX 1660 Ti's CUDA cores.
 ![Body Pose Hybrid Estimation Demo](presentation_mat/CMU_hybrid.gif)
 
 ---
+
+## Project Plan
+- [ ] Main Functionality
+  - [x] Head pose
+  - [x] Body pose
+  - [ ] Pose > action recognition
+    - [ ] Integrate with mediapipe landmark detection
+    - [x] LSTM
+- [ ] Clean folder struct, .gitignore, data, models, libs ...
+- [ ] Centralized log
+- [ ] Auto export of newer graphs, time spent, visualization demos to README.md
 
 ## 🛠 Project Execution
 
